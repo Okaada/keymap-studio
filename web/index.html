@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ZMK Visual Configurator — Lily58</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>ZMK Visual Configurator <span class="sub" id="profile-sub">—</span>
+        <span class="profiles">
+          <select id="profile-select" title="Perfil ativo"></select>
+          <button id="new-profile" title="Criar um novo perfil de teclado">+ Perfil</button>
+        </span>
+      </h1>
+      <div class="toolbar">
+        <div id="layers" class="layers"></div>
+        <div class="spacer"></div>
+        <button id="tester" title="Modo de teste: pressione as teclas físicas">🧪 Tester</button>
+        <button id="reload" title="Recarregar o arquivo do disco (reflete edições do agente)">↻ Recarregar</button>
+        <button id="pull-build" title="Puxar o keymap do repo de build (fonte da verdade após merge)">⬇ Puxar do build</button>
+        <button id="preview" title="Ver o diff das mudanças pendentes antes de salvar">👁️ Pré-visualizar</button>
+        <button id="save" class="primary">💾 Salvar</button>
+        <button id="behaviors">⚙️ Behaviors</button>
+        <button id="cheatsheet">🖨️ Cheatsheet</button>
+        <button id="sync">⬆️ Enviar pro build</button>
+      </div>
+    </header>
+
+    <div id="validation" class="validation hidden"></div>
+
+    <main>
+      <section class="board-wrap">
+        <div id="board" class="board"></div>
+        <p class="hint">Clique numa tecla para editar. <span class="legend-trans">▽</span> = transparente, <span class="legend-none">∅</span> = none.</p>
+      </section>
+
+      <aside id="palette" class="palette">
+        <p class="palette-empty">Selecione uma tecla para ver as funções disponíveis.</p>
+      </aside>
+    </main>
+
+    <dialog id="pull-dialog">
+      <div class="dlg-head">
+        <strong>⬇ Atualização do repo de build</strong>
+        <span class="spacer"></span>
+        <button id="close-pull">Fechar</button>
+      </div>
+      <div id="pull-body">
+        <p class="pos">O repo de build tem uma versão diferente da do editor. "Adotar" substitui a cópia do editor pela do repo (fonte da verdade após o merge).</p>
+        <div class="pv-toolbar">
+          <div class="layers">
+            <button id="pull-visual-btn" class="active">Visual</button>
+            <button id="pull-text-btn">Texto</button>
+          </div>
+          <span class="spacer"></span>
+          <div id="pull-layers" class="layers"></div>
+        </div>
+        <div id="pull-visual">
+          <div id="pull-board" class="board pv-board"></div>
+          <p class="pv-legend"><span class="sw diff-added"></span> adicionada
+            <span class="sw diff-modified"></span> alterada
+            <span class="sw diff-removed"></span> removida</p>
+          <div id="pull-footer"></div>
+        </div>
+        <pre id="pull-diff" class="diff hidden"></pre>
+        <button id="pull-adopt" class="primary apply">Adotar versão do repo</button>
+      </div>
+    </dialog>
+
+    <dialog id="profile-dialog">
+      <div class="dlg-head">
+        <strong>Novo perfil de teclado</strong>
+        <span class="spacer"></span>
+        <button id="close-profile">Fechar</button>
+      </div>
+      <div id="profile-form">
+        <label for="np-name">Nome (slug único)</label>
+        <input id="np-name" placeholder="ex.: corne" />
+        <label for="np-keyboard">Keyboard (shield ZMK)</label>
+        <input id="np-keyboard" placeholder="ex.: corne" />
+        <label for="np-layout">Layout (JSON de posições)</label>
+        <input id="np-layout" placeholder="src/layout/corne.layout.json" />
+        <label for="np-keymap">Caminho do keymap</label>
+        <input id="np-keymap" placeholder="keymaps/corne.keymap" />
+        <label for="np-repo">Build repo — path (opcional)</label>
+        <input id="np-repo" placeholder="../zmk-config" />
+        <label for="np-dest">Build repo — keymapDest (opcional)</label>
+        <input id="np-dest" placeholder="config/corne.keymap" />
+        <label for="np-base">Build repo — baseBranch</label>
+        <input id="np-base" value="main" />
+        <p id="profile-errors" class="pos"></p>
+        <button id="create-profile" class="primary apply">Criar perfil</button>
+      </div>
+    </dialog>
+
+    <dialog id="cheatsheet-dialog">
+      <div class="dlg-head">
+        <strong>Cheatsheet</strong>
+        <span class="spacer"></span>
+        <a id="pdf-link" href="/api/cheatsheet.pdf" target="_blank" rel="noopener">Baixar PDF</a>
+        <button id="close-cheatsheet">Fechar</button>
+      </div>
+      <div id="cheatsheet-body" class="cheatsheet-body"></div>
+    </dialog>
+
+    <dialog id="sync-dialog">
+      <div class="dlg-head">
+        <strong>Enviar pro repo de build (branch + PR)</strong>
+        <span class="spacer"></span>
+        <button id="close-sync">Fechar</button>
+      </div>
+      <div id="sync-body">
+        <p id="sync-status" class="pos">Calculando diff…</p>
+        <div id="sync-toolbar" class="pv-toolbar hidden">
+          <div id="sync-view" class="layers">
+            <button id="sync-visual-btn" class="active">Visual</button>
+            <button id="sync-text-btn">Texto</button>
+          </div>
+          <span class="spacer"></span>
+          <div id="sync-layers" class="layers"></div>
+        </div>
+        <div id="sync-visual" class="hidden">
+          <div id="sync-board" class="board pv-board"></div>
+          <p class="pv-legend"><span class="sw diff-added"></span> adicionada
+            <span class="sw diff-modified"></span> alterada
+            <span class="sw diff-removed"></span> removida</p>
+          <div id="sync-footer"></div>
+        </div>
+        <pre id="sync-diff" class="diff hidden"></pre>
+        <label for="sync-msg">Título do commit / PR</label>
+        <input id="sync-msg" value="Update lily58 keymap" />
+        <button id="sync-confirm" class="primary apply">Confirmar e abrir PR</button>
+        <p id="sync-result" class="pos"></p>
+        <div id="build-area" class="hidden"></div>
+      </div>
+    </dialog>
+
+    <dialog id="preview-dialog">
+      <div class="dlg-head">
+        <strong>👁️ Pré-visualizar mudanças</strong>
+        <span class="spacer"></span>
+        <button id="close-preview">Fechar</button>
+      </div>
+      <div id="preview-body">
+        <div id="preview-toolbar" class="pv-toolbar hidden">
+          <div id="preview-view" class="layers">
+            <button id="pv-visual" class="active">Visual</button>
+            <button id="pv-text">Texto</button>
+          </div>
+          <span class="spacer"></span>
+          <div id="preview-layers" class="layers"></div>
+        </div>
+        <p id="preview-status" class="pos">Calculando diff…</p>
+        <div id="preview-visual" class="hidden">
+          <div id="preview-board" class="board pv-board"></div>
+          <p class="pv-legend"><span class="sw diff-added"></span> adicionada
+            <span class="sw diff-modified"></span> alterada
+            <span class="sw diff-removed"></span> removida</p>
+          <div id="preview-footer"></div>
+        </div>
+        <pre id="preview-diff" class="diff hidden"></pre>
+        <p id="preview-errors" class="pos"></p>
+        <button id="preview-save" class="primary apply">Salvar</button>
+      </div>
+    </dialog>
+
+    <dialog id="behaviors-dialog">
+      <div class="dlg-head">
+        <strong>⚙️ Behaviors configuráveis</strong>
+        <span class="spacer"></span>
+        <button id="close-behaviors">Fechar</button>
+      </div>
+      <p class="pos">A config fica na <strong>definição</strong> do behavior e vale para
+        <strong>todas</strong> as teclas que o usam.</p>
+      <div id="behaviors-body"></div>
+      <p id="behaviors-result" class="pos"></p>
+      <button id="behaviors-save" class="primary apply">Salvar behaviors</button>
+    </dialog>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

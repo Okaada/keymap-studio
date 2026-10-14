@@ -1,0 +1,15 @@
+node_modules/
+.cache/
+*.log
+
+# Estado local do Claude Code (permissões/escolhas da máquina)
+.claude/settings.local.json
+
+# Config e perfis REAIS do usuário ficam locais; só os *.example.* são versionados.
+config.json
+profiles/*.json
+!profiles/example.json
+
+# Keymaps reais ficam locais; versione apenas os templates *.example.keymap.
+keymaps/*.keymap
+!keymaps/*.example.keymap

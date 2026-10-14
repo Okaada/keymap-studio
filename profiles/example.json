@@ -1,0 +1,12 @@
+{
+  "name": "example",
+  "keyboard": "lily58",
+  "layout": "src/layout/lily58.layout.json",
+  "keymapPath": "keymaps/lily58.keymap",
+  "buildRepo": {
+    "path": "../zmk-config",
+    "keymapDest": "config/lily58.keymap",
+    "baseBranch": "main",
+    "remote": "origin"
+  }
+}

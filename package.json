@@ -1,0 +1,17 @@
+{
+  "name": "zmk-visual-configurator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Configurador visual local do keymap ZMK para o Lily58 (editável por UI e por agente), com export de cheatsheet/PDF.",
+  "bin": {
+    "zmk-config": "src/server.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
